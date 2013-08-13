@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,20 +18,23 @@ import javax.persistence.Transient;
 public class Question
 {
    @Id
-   @GeneratedValue   
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Column(name = "QUESTION_ID")
    private Integer id;
    
-   @ManyToOne
-   @JoinColumn(name="questionmanager_fk")
-   private Quiz questionManager;
-
+//   @ManyToOne
+//   private Quiz quiz;
+//
    @Column(columnDefinition="TEXT")
    private String questionText;
 
    @Column(columnDefinition="TEXT")
    private String answerText;
 
-   @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
+//   @OneToMany(cascade = CascadeType.ALL)
+//   @JoinColumn(name="QUESTION_ID")
+   @OneToMany(cascade = CascadeType.ALL)
+   @JoinColumn
    private Set<Choice> choices = new HashSet<Choice>();
    
    @Transient
@@ -80,15 +84,15 @@ public class Question
       this.isAnsweredCorrectly = isAnsweredCorrectly;
    }
 
-   public Quiz getQuestionManager()
-   {
-      return questionManager;
-   }
-
-   public void setQuestionManager(Quiz questionManager)
-   {
-      this.questionManager = questionManager;
-   }
+//   public Quiz getQuiz()
+//   {
+//      return quiz;
+//   }
+//
+//   public void setQuiz(Quiz questionManager)
+//   {
+//      this.quiz = questionManager;
+//   }
 
    public Integer getId()
    {

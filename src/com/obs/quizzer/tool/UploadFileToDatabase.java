@@ -6,10 +6,9 @@ import java.util.List;
 
 import com.obs.quizzer.dao.DAO;
 import com.obs.quizzer.dao.QuizzerDAO;
+import com.obs.quizzer.pojo.Choice;
 import com.obs.quizzer.pojo.Question;
 import com.obs.quizzer.pojo.Quiz;
-
-
 
 public class UploadFileToDatabase
 {
@@ -21,7 +20,13 @@ public class UploadFileToDatabase
          System.exit(1);
       }
 
-      String folderName = args[0];
+      UploadFileToDatabase uftd = new UploadFileToDatabase();
+//      uftd.writeToDatabase(args[0]);
+      uftd.readFromDatabase();
+   }
+
+   private void writeToDatabase(String folderName)
+   {
       File folderFile = new File(folderName);
       FileFilter ff = new FileFilter()
       {
@@ -52,21 +57,34 @@ public class UploadFileToDatabase
          }
       }
       
+      DAO.close();
+   }
+
+   private void readFromDatabase()
+   {
+      QuizzerDAO dao = new QuizzerDAO();
+      
       try
       {
          List<Quiz> qms = dao.getAllQuizzes();
          for (Quiz qm : qms)
          {
-            System.out.println("quizname = <" + qm.getQuizName() + "> (" + qm.getQuestions().size() + ")");
+            
+System.out.println("read quizname = <" + qm.getQuizName() + "> (" + qm.getQuestions().size() + ")");
+
             for (Question question : qm.getQuestions())
             {
-               System.out.println("   question=<" + question.getQuestionText() + ">, answer=<" + question.getAnswerText() + ">");
+               System.out.println("   read question=<" + question.getQuestionText() + ">, answer=<" + question.getAnswerText() + ">");
+               
+               for (Choice choice : question.getChoices())
+               {
+                  System.out.println("      read choice=<" + choice.getChoice() + ">");
+               }
             }
          }
       }
       catch (Exception e)
       {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
       

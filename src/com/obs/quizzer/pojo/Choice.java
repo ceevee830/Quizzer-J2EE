@@ -3,6 +3,7 @@ package com.obs.quizzer.pojo;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -11,12 +12,12 @@ import javax.persistence.ManyToOne;
 public class Choice
 {
    @Id
-   @GeneratedValue   
+   @GeneratedValue(strategy = GenerationType.IDENTITY)   
    private Integer id;
    
-   @ManyToOne
-   @JoinColumn(name="question_fk")
-   private Question question;
+//   @ManyToOne
+////   @JoinColumn(name = "QUESTION_ID")
+//   private Question question;
    
    @Column(columnDefinition="TEXT")
    private String choice;
@@ -50,13 +51,13 @@ public class Choice
       this.choice = choice;
    }
 
-   public Question getQuestion()
-   {
-      return question;
-   }
-
-   public void setQuestion(Question question)
-   {
-      this.question = question;
-   }
+//   public Question getQuestion()
+//   {
+//      return question;
+//   }
+//
+//   public void setQuestion(Question question)
+//   {
+//      this.question = question;
+//   }
 }

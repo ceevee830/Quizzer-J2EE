@@ -5,18 +5,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
 /**
@@ -29,13 +30,15 @@ import javax.persistence.OneToMany;
 public class Quiz
 {
    @Id
-   @GeneratedValue   
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Column(name = "quiz_id")
    private Integer id;
-   private Integer questionsPerAnswer = -1;            // only used when mode = OneAnswerPerLine
+   private Integer answersPerQuestion = -1;            // only used when mode = OneAnswerPerLine
    private Boolean oneAnswerPerLine = false;
    private String quizName;
 
-   @OneToMany(cascade = CascadeType.ALL, mappedBy="questionManager")
+   @OneToMany(cascade = CascadeType.ALL)
+   @JoinColumn
    private Set<Question> questions = new HashSet<Question>();       // Will contain nothing but Question objects
    
    public Quiz()
@@ -58,9 +61,9 @@ public class Quiz
 
          final String strPossibleAnswers = (String) props.get("PossibleAnswersPerQuestion");
          if (oneAnswerPerLine && strPossibleAnswers != null)
-            questionsPerAnswer = Integer.parseInt(strPossibleAnswers);
+            answersPerQuestion = Integer.parseInt(strPossibleAnswers);
 
-         if (questionsPerAnswer < 1)
+         if (answersPerQuestion < 1)
             throw new RuntimeException("The value for 'PossibleAnswersPerQuestion' in '" + quizzerfileselected + " must be greater than zero.");
       }
 
@@ -101,9 +104,6 @@ public class Quiz
       {
          System.out.println(evt);
       }
-
-      if (oneAnswerPerLine)
-         fillInChoices();
    }
 
    public Question getRandomUnasweredQuestion()
@@ -118,24 +118,6 @@ public class Quiz
       while (ques.isAnsweredCorrectly() == true);
 
       return ques;
-   }
-
-   List<String> getPossibleAnswersForThisQuestion(Question question)
-   {
-      List<String> possibleAnswersForThisQuestion = new ArrayList<String>();
-
-//      Question ques = lookup(question.strAnswer);
-      possibleAnswersForThisQuestion.add(question.getAnswerText());
-
-      for (Choice choice : question.getChoices())
-         possibleAnswersForThisQuestion.add(choice.getChoice());
-
-      return possibleAnswersForThisQuestion;
-   }
-
-   boolean isThisTheAnswerForThisQuestion(String question, String answer)
-   {
-      return lookup(question).getAnswerText().compareTo(answer) == 0;
    }
 
    public int getNumberofUnasweredQuestionsLeft()
@@ -163,29 +145,24 @@ public class Quiz
 
       for (Question question : questions)
       {
-         question.setChoices(addIncorrectChoice(question));
+         question.setChoices(getIncorrectChoices(question));
       }
    }
 
-   private Set<Choice> addIncorrectChoice(Question ques)
+   private Set<Choice> getIncorrectChoices(Question ques)
    {
       if (!oneAnswerPerLine)
          throw new RuntimeException("This method should not be called in AllAnswersPerLine mode");
 
       Set<Choice> listOfChoices = new HashSet<Choice>();
-      for (int ii = 0; ii < questionsPerAnswer - 1; ii++)
+
+      for (int ii = 0; ii < answersPerQuestion - 1; ii++)
       {
          Choice candidate = null;
 
          do
          {
             Question temp = this.getRandomQuestion();
-            
-            if (temp == null)
-            {
-               temp = getRandomQuestion();
-            }
-            
             candidate = new Choice(temp.getAnswerText());
          }
          while (candidate.getChoice().compareTo(ques.getAnswerText()) == 0 || listOfChoices.contains(candidate));
@@ -196,26 +173,6 @@ public class Quiz
       return listOfChoices;
    }
 
-   private String getIncorrectAnswer(String correctAnswer)
-   {
-      if (!oneAnswerPerLine)
-         throw new RuntimeException("This method should not be called in AllAnswersPerLine mode");
-
-//      final int max = questions.size();
-      String incorrectAnswer;
-
-      do
-      {
-//         final double d = Math.random() * max;
-//         final int randomint = (int) d;
-         final Question candidate = getRandomQuestion();
-         incorrectAnswer = candidate.getAnswerText();
-      }
-      while (correctAnswer.compareToIgnoreCase(incorrectAnswer) == 0);
-
-      return incorrectAnswer;
-   }
-   
    private Question getRandomQuestion()
    {
       Question returnvalue = null;
@@ -267,38 +224,17 @@ public class Quiz
       return ques;
    }
 
-   private Question lookup(String question)
-   {
-      Question ques = null;
-
-      for (Question temp : questions)
-      {
-         if (temp.getQuestionText().compareTo(question) == 0)
-         {
-            ques = temp;
-            break;
-         }
-      }
-
-      return ques;
-   }
-
    public static void main(String[] args)
    {
       try
       {
          final Quiz fileio = new Quiz(new File(args[0]));
-         System.out.println("QuestionManager.main: unasnswered questions=" + fileio.getNumberofUnasweredQuestionsLeft());
+System.out.println("QuestionManager.main: unasnswered questions=" + fileio.getNumberofUnasweredQuestionsLeft());
 
          for (int ii = 0; fileio.getNumberofUnasweredQuestionsLeft() > 0; ii++)
          {
             final Question question = fileio.getRandomUnasweredQuestion();
-            System.out.println("   " + ii + ": " + question);
-
-//            final String answers[] = fileio.getPossibleAnswersForThisQuestion(question);
-//
-//            for (int jj = 0 ; jj < answers.length ; jj++)
-//               System.out.println("      " + answers[jj]);
+System.out.println("   " + ii + ": " + question);
 
             fileio.removeThisQuestionFromList(question);
          }
@@ -311,14 +247,14 @@ public class Quiz
       System.exit(0);
    }
 
-   public Integer getQuestionsPerAnswer()
+   public Integer getAnswersPerQuestion()
    {
-      return questionsPerAnswer;
+      return answersPerQuestion;
    }
 
-   public void setQuestionsPerAnswer(Integer questionsPerAnswer)
+   public void setAnswersPerQuestion(Integer questionsPerAnswer)
    {
-      this.questionsPerAnswer = questionsPerAnswer;
+      this.answersPerQuestion = questionsPerAnswer;
    }
 
    public Boolean isOneAnswerPerLine()
