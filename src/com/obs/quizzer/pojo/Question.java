@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
@@ -22,17 +21,12 @@ public class Question
    @Column(name = "QUESTION_ID")
    private Integer id;
    
-//   @ManyToOne
-//   private Quiz quiz;
-//
    @Column(columnDefinition="TEXT")
    private String questionText;
 
    @Column(columnDefinition="TEXT")
    private String answerText;
 
-//   @OneToMany(cascade = CascadeType.ALL)
-//   @JoinColumn(name="QUESTION_ID")
    @OneToMany(cascade = CascadeType.ALL)
    @JoinColumn
    private Set<Choice> choices = new HashSet<Choice>();
@@ -83,16 +77,6 @@ public class Question
    {
       this.isAnsweredCorrectly = isAnsweredCorrectly;
    }
-
-//   public Quiz getQuiz()
-//   {
-//      return quiz;
-//   }
-//
-//   public void setQuiz(Quiz questionManager)
-//   {
-//      this.quiz = questionManager;
-//   }
 
    public Integer getId()
    {

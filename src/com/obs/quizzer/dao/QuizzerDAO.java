@@ -1,5 +1,6 @@
 package com.obs.quizzer.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -51,6 +52,44 @@ public class QuizzerDAO extends DAO
       {
          log.log(Level.INFO, "cvcvcv: Leaving getAllQuizzes()");
       }
+   }
+   
+   public List<Quiz> getQuizzes(String category) throws Exception
+   {
+      log.log(Level.INFO, "cvcvcv: Entering getQuizzes()");
+      
+      try
+      {
+         Query query = getSession().createQuery("from Quiz where category='" + category + "'");
+         return query.list();
+      }
+      catch (HibernateException ex)
+      {
+         throw new Exception("Could not getQuizzes()", ex);
+      }
+      finally
+      {
+         log.log(Level.INFO, "cvcvcv: Leaving getQuizzes()");
+      }
+   }
+   
+   public List<String> getCategories() throws Exception
+   {
+      List<String> returnvalue = new ArrayList<String>();
+      
+      List<Quiz> quizzes = getAllQuizzes();
+      
+      for (Quiz quiz : quizzes)
+      {
+         String category = quiz.getCategory();
+         
+         if (!returnvalue.contains(category))
+         {
+            returnvalue.add(category);
+         }
+      }
+      
+      return returnvalue;
    }
 
    

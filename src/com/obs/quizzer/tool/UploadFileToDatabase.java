@@ -66,19 +66,27 @@ public class UploadFileToDatabase
       
       try
       {
-         List<Quiz> qms = dao.getAllQuizzes();
-         for (Quiz qm : qms)
+         List<String> categories = dao.getCategories();
+         
+         for (String category : categories)
          {
+            List<Quiz> qms = dao.getQuizzes(category);
             
-System.out.println("read quizname = <" + qm.getQuizName() + "> (" + qm.getQuestions().size() + ")");
+System.out.println("read category = <" + category + "> (" + qms.size() + ")");
 
-            for (Question question : qm.getQuestions())
+            for (Quiz qm : qms)
             {
-               System.out.println("   read question=<" + question.getQuestionText() + ">, answer=<" + question.getAnswerText() + ">");
                
-               for (Choice choice : question.getChoices())
+System.out.println("   read quizname = <" + qm.getQuizName() + "> (" + qm.getQuestions().size() + ")");
+
+               for (Question question : qm.getQuestions())
                {
-                  System.out.println("      read choice=<" + choice.getChoice() + ">");
+System.out.println("      read question=<" + question.getQuestionText() + ">, answer=<" + question.getAnswerText() + ">");
+                  
+                  for (Choice choice : question.getChoices())
+                  {
+System.out.println("         read choice=<" + choice.getChoice() + ">");
+                  }
                }
             }
          }

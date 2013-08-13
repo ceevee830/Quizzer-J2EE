@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Properties;
@@ -27,7 +28,7 @@ import javax.persistence.OneToMany;
  */
 
 @Entity
-public class Quiz
+public class Quiz implements Comparator<Quiz>
 {
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +37,7 @@ public class Quiz
    private Integer answersPerQuestion = -1;            // only used when mode = OneAnswerPerLine
    private Boolean oneAnswerPerLine = false;
    private String quizName;
+   private String category;
 
    @OneToMany(cascade = CascadeType.ALL)
    @JoinColumn
@@ -65,6 +67,13 @@ public class Quiz
 
          if (answersPerQuestion < 1)
             throw new RuntimeException("The value for 'PossibleAnswersPerQuestion' in '" + quizzerfileselected + " must be greater than zero.");
+      }
+      
+      category = (String)props.getProperty("category");
+      
+      if (category == null)
+      {
+         category = "No category";
       }
 
       try
@@ -267,6 +276,8 @@ System.out.println("   " + ii + ": " + question);
       this.oneAnswerPerLine = oneAnswerPerLine;
    }
 
+   @javax.persistence.OneToMany
+   @org.hibernate.annotations.Sort(type=org.hibernate.annotations.SortType.COMPARATOR, comparator=Quiz.class)
    public Set<Question> getQuestions()
    {
       return questions;
@@ -295,5 +306,21 @@ System.out.println("   " + ii + ": " + question);
    public void setQuizName(String quizName)
    {
       this.quizName = quizName;
+   }
+
+   public String getCategory()
+   {
+      return category;
+   }
+
+   public void setCategory(String category)
+   {
+      this.category = category;
+   }
+
+   @Override
+   public int compare(Quiz o1, Quiz o2)
+   {
+      return o1.getQuizName().compareTo(o2.getQuizName());
    }
 }

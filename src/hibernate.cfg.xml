@@ -35,7 +35,8 @@
         <mapping class="com.obs.quizzer.pojo.Quiz"/>
 		<mapping class="com.obs.quizzer.pojo.Question"/>
 		<mapping class="com.obs.quizzer.pojo.Choice"/>
-        
+		<mapping class="com.obs.quizzer.pojo.HOFEntry"/>
+		
     </session-factory>
 
 </hibernate-configuration>
